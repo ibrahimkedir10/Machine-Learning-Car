@@ -1,46 +1,47 @@
+class Object {
+    constructor(x, y, width, height, controlType, maxSpeed = 3, color = "blue") {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
 
-class Object{
-    constructor(x,y,width,height,controlType,maxSpeed=3,color="blue"){
-        this.x=x;
-        this.y=y;
-        this.width=width;
-        this.height=height;
+        this.speed = 0;
+        this.acceleration = 0.2;
+        this.maxSpeed = maxSpeed;
+        this.friction = 0.05;
+        this.angle = 0;
+        this.damaged = false;
 
-        this.speed=0;
-        this.acceleration=0.2;
-        this.maxSpeed=maxSpeed;
-        this.friction=0.05;
-        this.angle=0;
-        this.damaged=false;
+        this.useBrain = controlType == "AI";
 
-        this.useBrain=controlType=="AI";
-
-        if(controlType!="DUMMY"){
-            this.sensor=new Sensor(this);
-            this.brain=new NeuralNetwork(
-                [this.sensor.rayCount,6,4]
+        if (controlType != "DUMMY") {
+            this.sensor = new Sensor(this);
+            this.brain = new NeuralNetwork(
+                [this.sensor.rayCount, 6, 4]
             );
         }
-        this.controls=new Controls(controlType);
+        this.controls = new Controls(controlType);
 
-        this.img=new Image();
-        this.img.src="vacume.png"
+        this.img = new Image();
+        this.img.src = "vacume.png";
 
-        this.mask=document.createElement("canvas");
-        this.mask.width=width;
-        this.mask.height=height;
+        this.img1 = new Image();
+        this.img1.src = "coneObject.png"; // Add the second image source
 
-        const maskCtx=this.mask.getContext("2d");
-        this.img.onload=()=>{
-            maskCtx.fillStyle=color;
-            maskCtx.rect(0,0,this.width,this.height);
+        this.mask = document.createElement("canvas");
+        this.mask.width = width;
+        this.mask.height = height;
+
+        const maskCtx = this.mask.getContext("2d");
+        this.img.onload = () => {
+            maskCtx.fillStyle = color;
+            maskCtx.rect(0, 0, this.width, this.height);
             maskCtx.fill();
 
-            maskCtx.globalCompositeOperation="destination-atop";
-            maskCtx.drawImage(this.img,0,0,this.width,this.height);
-        }
+            maskCtx.globalCompositeOperation = "destination-atop";
+            maskCtx.drawImage(this.img, 0, 0, this.width, this.height);
+        };
     }
-
     update(roadBorders,traffic){
         if(!this.damaged){
             this.#move();
@@ -139,28 +140,30 @@ class Object{
         this.y-=Math.cos(this.angle)*this.speed;
     }
 
-    draw(ctx,drawSensor=false){
-        if(this.sensor && drawSensor){
+    draw(ctx, drawSensor = false) {
+        if (this.sensor && drawSensor) {
             this.sensor.draw(ctx);
         }
 
         ctx.save();
-        ctx.translate(this.x,this.y);
+        ctx.translate(this.x, this.y);
         ctx.rotate(-this.angle);
-        if(!this.damaged){
-            ctx.drawImage(this.mask,
-                -this.width/2,
-                -this.height/2,
-                this.width,
-                this.height);
-            ctx.globalCompositeOperation="multiply";
+        if (!this.damaged) {
+            if (this.useBrain) {
+                ctx.drawImage(this.img,
+                    -this.width / 2,
+                    -this.height / 2,
+                    this.width,
+                    this.height);
+            } else {
+                ctx.drawImage(this.img1, // Use img1 for DUMMY
+                    -this.width / 2,
+                    -this.height / 2,
+                    this.width,
+                    this.height);
+            }
+            ctx.globalCompositeOperation = "multiply";
         }
-        ctx.drawImage(this.img,
-            -this.width/2,
-            -this.height/2,
-            this.width,
-            this.height);
         ctx.restore();
-
     }
 }
