@@ -23,10 +23,10 @@ class Object {
         this.controls = new Controls(controlType);
 
         this.img = new Image();
-        this.img.src = "vacume.png";
+        this.img.src = "/Assets/vacume.png";
 
         this.img1 = new Image();
-        this.img1.src = "coneObject.png"; // Add the second image source
+        this.img1.src = "/Assets/coneObject.png"; // Add the second image source
 
         this.mask = document.createElement("canvas");
         this.mask.width = width;
